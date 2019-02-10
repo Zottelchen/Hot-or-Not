@@ -30,12 +30,12 @@ class Ui_MainWindow(object):
         MainWindow.setAutoFillBackground(False)
         MainWindow.setWindowIcon(QtGui.QIcon(resource_path('./flame.ico')))
         MainWindow.setStyleSheet("background: rgb(125, 125, 125);\n"
-                                 "font: 10pt \"DIN\";\n"
+                                 "font: 10pt \"Verdana\";\n"
                                  "color: rgb(223, 223, 223)")
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.loadButton = QtWidgets.QPushButton(self.centralwidget)
-        self.loadButton.setGeometry(QtCore.QRect(750, 830, 100, 30))
+        self.loadButton.setGeometry(QtCore.QRect(750, 830, 110, 30))
         self.loadButton.setObjectName("loadButton")
         self.nawtButton = QtWidgets.QPushButton(self.centralwidget)
         self.nawtButton.setGeometry(QtCore.QRect(0, 400, 100, 30))
