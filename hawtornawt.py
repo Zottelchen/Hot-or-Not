@@ -112,6 +112,7 @@ class Ui_MainWindow(object):
             self.nawtButton.setEnabled(False)
             self.label.setText("No more images. Choose new folder.")
             settings.set("lastPath", "")
+            settings.save()
             # print("ALL DONE!")
             return
         currentFile = cwd[0]
