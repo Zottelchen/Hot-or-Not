@@ -7,11 +7,14 @@ import sys
 from glob import glob
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from easysettings import EasySettings
 
 directory = ""
 currentFile = ""
 myappid = u'hawtornawt'  # arbitrary string
 ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+settings = EasySettings("hawtornawt.conf")
+
 
 def resource_path(relative_path):
     if hasattr(sys, '_MEIPASS'):
@@ -25,7 +28,7 @@ class Ui_MainWindow(object):
         MainWindow.resize(1600, 900)
         MainWindow.setMinimumSize(QtCore.QSize(1600, 900))
         MainWindow.setMaximumSize(QtCore.QSize(1600, 900))
-        MainWindow.setWindowTitle("Hawt Or Nawt (Version 1.0)")
+        MainWindow.setWindowTitle("Hawt Or Nawt (Version 1.1)")
         MainWindow.setWindowOpacity(1.0)
         MainWindow.setAutoFillBackground(False)
         MainWindow.setWindowIcon(QtGui.QIcon(resource_path('./flame.ico')))
@@ -65,6 +68,9 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
+        if settings.get("lastPath") != "":
+            self.openPath(settings.get("lastPath"))
+
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         self.loadButton.setText(_translate("MainWindow", "Load Folder"))
@@ -74,10 +80,9 @@ class Ui_MainWindow(object):
         self.hawtButton.setShortcut(_translate("MainWindow", "Right"))
         self.label.setText(_translate("MainWindow", "No folder loaded"))
 
-    def loadPath(self):
+    def openPath(self, path):
         global directory
-        directory = QtWidgets.QFileDialog.getExistingDirectory(None, "Open Dir", "C:/")
-        # print("CHOSEN DIR: " + directory)
+        directory = path
         if not os.path.exists(directory + "/hawt"):
             os.makedirs(directory + "/hawt")
         if not os.path.exists(directory + "/nawt"):
@@ -85,9 +90,18 @@ class Ui_MainWindow(object):
         # print("CREATED FOLDERS")
         self.hawtButton.setEnabled(True)
         self.nawtButton.setEnabled(True)
-        self.loadNextImage()
+        self.loadNextImage(directory)
 
-    def loadNextImage(self):
+    def loadPath(self):
+        global directory
+        directory = QtWidgets.QFileDialog.getExistingDirectory(None, "Open Dir", "C:/")
+        # print("CHOSEN DIR: " + directory)
+        settings.set("lastPath", directory)
+        settings.save()
+        self.openPath(directory)
+        return
+
+    def loadNextImage(self, directory):
         global currentFile
         cwd = glob(directory + "/*.png")
         cwd.extend(glob(directory + '/*.jpg'))
@@ -97,6 +111,7 @@ class Ui_MainWindow(object):
             self.hawtButton.setEnabled(False)
             self.nawtButton.setEnabled(False)
             self.label.setText("No more images. Choose new folder.")
+            settings.set("lastPath", "")
             # print("ALL DONE!")
             return
         currentFile = cwd[0]
@@ -111,12 +126,12 @@ class Ui_MainWindow(object):
     def hawt(self):
         # print("hawt: " + currentFile + "   " + os.path.basename(currentFile))
         shutil.move(currentFile, directory + "/hawt/" + os.path.basename(currentFile))
-        self.loadNextImage()
+        self.loadNextImage(directory)
 
     def nawt(self):
         # print("nawt: " + currentFile + "   " + os.path.basename(currentFile))
         shutil.move(currentFile, directory + "/nawt/" + os.path.basename(currentFile))
-        self.loadNextImage()
+        self.loadNextImage(directory)
 
 
 if __name__ == "__main__":
@@ -126,5 +141,3 @@ if __name__ == "__main__":
     ui.setupUi(MainWindow)
     MainWindow.show()
     sys.exit(app.exec_())
-
-
