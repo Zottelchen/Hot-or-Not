@@ -65,6 +65,12 @@ class Ui_MainWindow(object):
         self.label.setStyleSheet("background-color: rgb(85, 85, 85);")
         self.label.setAlignment(QtCore.Qt.AlignCenter)
         self.label.setObjectName("label")
+        self.fileName = QtWidgets.QLabel(self.centralwidget)
+        self.fileName.setGeometry(QtCore.QRect(990, 820, 500, 28))
+        self.fileName.setStyleSheet("background-color: rgb(95, 95, 95);")
+        self.fileName.setMargin(2)
+        self.fileName.setAlignment(QtCore.Qt.AlignRight)
+        self.fileName.setText("")
         MainWindow.setCentralWidget(self.centralwidget)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
@@ -181,6 +187,7 @@ class Ui_MainWindow(object):
             settings.save()
             # print("ALL DONE!")
             self.clearNawt()
+            os.startfile(directory)
             return
         currentFile = cwd[0]
 
@@ -195,6 +202,7 @@ class Ui_MainWindow(object):
         # print("Imageprofile created")
         myScaledPixmap = myPixmap.scaled(self.label.size(), QtCore.Qt.KeepAspectRatio)
         # print("Imageprofile scaled")
+        self.fileName.setText(os.path.basename(currentFile))
         self.label.setPixmap(myScaledPixmap)
 
     def hawt(self):
@@ -233,6 +241,11 @@ class Ui_MainWindow(object):
         self.nawtButton.setVisible(val)
         self.clearnawtButton.setVisible(val)
         self.undoButton.setVisible(val)
+        if val == False:
+            self.nawtcount.setText("")
+            self.hawtcount.setText("")
+            self.totalcount.setText("")
+            self.fileName.setText("")
 
 
 if __name__ == "__main__":
