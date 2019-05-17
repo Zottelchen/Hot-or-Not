@@ -1,1 +1,1 @@
-pyinstaller --onefile --icon=flame.ico --windowed hawtornawt.spec
+pyinstaller --onefile --icon=flame.ico --windowed hotornot.spec

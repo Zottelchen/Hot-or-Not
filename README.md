@@ -1,4 +1,4 @@
-# HAWTorNAWT
+# Hot or Not
 Enables you to quickly filter through images on your PC using arrow keys (similiar to Tinder).
 
 ![](img.png)

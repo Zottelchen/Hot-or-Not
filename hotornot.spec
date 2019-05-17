@@ -3,7 +3,7 @@
 block_cipher = None
 
 
-a = Analysis(['hawtornawt.py'],
+a = Analysis(['hotornot.py'],
              pathex=['F:\\Dropbox\\Scripte\\HAWTorNAWT'],
              binaries=[],
              datas=[],
@@ -26,7 +26,7 @@ exe = EXE(pyz,
           a.zipfiles,
           a.datas,
           [],
-          name='hawtornawt',
+          name='hotornot',
           debug=False,
           bootloader_ignore_signals=False,
           strip=False,
