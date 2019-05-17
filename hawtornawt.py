@@ -11,12 +11,14 @@ from PyQt5.QtWidgets import QMessageBox
 from easysettings import EasySettings
 from pathlib2 import Path
 
+# tempgiftitle = "TMP_GIF_FILE_OF_HOTORNOT-DO_NOT_DELETE_PLEASE.xyzyx"
 directory = ""
 currentFile = ""
 previousFile = ""
-myappid = u'hawtornawt'  # arbitrary string
+previousDirectory = ""
+myappid = u'hotornot'  # arbitrary string
 ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
-settings = EasySettings("hawtornawt.conf")
+settings = EasySettings("hotornot.conf")
 
 
 def resource_path(relative_path):
@@ -32,7 +34,7 @@ class Ui_MainWindow(object):
         MainWindow.resize(1600, 900)
         MainWindow.setMinimumSize(QtCore.QSize(1600, 900))
         MainWindow.setMaximumSize(QtCore.QSize(1600, 900))
-        MainWindow.setWindowTitle("Hawt Or Nawt (Version 1.2)")
+        MainWindow.setWindowTitle("Hot Or Not (Version 1.3)")
         MainWindow.setWindowOpacity(1.0)
         MainWindow.setAutoFillBackground(False)
         MainWindow.setWindowIcon(QtGui.QIcon(resource_path('./flame.ico')))
@@ -48,18 +50,18 @@ class Ui_MainWindow(object):
         self.undoButton.setGeometry(QtCore.QRect(700, 820, 110, 30))
         self.undoButton.setStyleSheet("color: rgb(254, 248, 140);")
         self.undoButton.setObjectName("undoButton")
-        self.nawtButton = QtWidgets.QPushButton(self.centralwidget)
-        self.nawtButton.setGeometry(QtCore.QRect(0, 400, 100, 30))
-        self.nawtButton.setStyleSheet("color: rgb(255, 147, 149);")
-        self.nawtButton.setObjectName("nawtButton")
-        self.clearnawtButton = QtWidgets.QPushButton(self.centralwidget)
-        self.clearnawtButton.setGeometry(QtCore.QRect(0, 460, 100, 30))
-        self.clearnawtButton.setStyleSheet("color: rgb(255, 147, 149);")
-        self.clearnawtButton.setObjectName("nawtButton")
-        self.hawtButton = QtWidgets.QPushButton(self.centralwidget)
-        self.hawtButton.setGeometry(QtCore.QRect(1500, 400, 100, 30))
-        self.hawtButton.setStyleSheet("color: rgb(165, 213, 151)")
-        self.hawtButton.setObjectName("hawtButton")
+        self.notButton = QtWidgets.QPushButton(self.centralwidget)
+        self.notButton.setGeometry(QtCore.QRect(0, 400, 100, 30))
+        self.notButton.setStyleSheet("color: rgb(255, 147, 149);")
+        self.notButton.setObjectName("notButton")
+        self.clearnotButton = QtWidgets.QPushButton(self.centralwidget)
+        self.clearnotButton.setGeometry(QtCore.QRect(0, 460, 100, 30))
+        self.clearnotButton.setStyleSheet("color: rgb(255, 147, 149);")
+        self.clearnotButton.setObjectName("notButton")
+        self.hotButton = QtWidgets.QPushButton(self.centralwidget)
+        self.hotButton.setGeometry(QtCore.QRect(1500, 400, 100, 30))
+        self.hotButton.setStyleSheet("color: rgb(165, 213, 151)")
+        self.hotButton.setObjectName("hotButton")
         self.label = QtWidgets.QLabel(self.centralwidget)
         self.label.setGeometry(QtCore.QRect(110, 0, 1380, 820))
         self.label.setStyleSheet("background-color: rgb(85, 85, 85);")
@@ -80,17 +82,18 @@ class Ui_MainWindow(object):
         self.totalcount.setGeometry(750, 850, 150, 30)
         # self.count.setText("Count: xxx")
 
-        self.hawtcount = QtWidgets.QLabel(self.centralwidget)
-        self.hawtcount.setGeometry(QtCore.QRect(1500, 430, 100, 30))
-        # self.hawtcount.setText("Hawt: xxx")
-        self.nawtcount = QtWidgets.QLabel(self.centralwidget)
-        self.nawtcount.setGeometry(QtCore.QRect(0, 430, 100, 30))
-        # self.nawtcount.setText("Nawt: xxx")
+        self.hotcount = QtWidgets.QLabel(self.centralwidget)
+        self.hotcount.setGeometry(QtCore.QRect(1500, 430, 100, 30))
+        # self.hotcount.setText("Hot: xxx")
+        self.notcount = QtWidgets.QLabel(self.centralwidget)
+        self.notcount.setGeometry(QtCore.QRect(0, 430, 100, 30))
+        # self.notcount.setText("Not: xxx")
 
         self.loadButton.clicked.connect(self.loadPath)
-        self.hawtButton.clicked.connect(self.hawt)
-        self.nawtButton.clicked.connect(self.nawt)
-        self.clearnawtButton.clicked.connect(self.clearNawt)
+        self.hotButton.clicked.connect(self.hot)
+        self.notButton.clicked.connect(self.
+        not)
+        self.clearnotButton.clicked.connect(self.clearNot)
         self.undoButton.clicked.connect(self.undo)
 
         app.aboutToQuit.connect(self.closeEvent)
@@ -101,7 +104,8 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
         if settings.get("lastPath") != "":
-            self.openPath(settings.get("lastPath"))
+            if os.path.exists(settings.get("lastPath")):
+                self.openPath(settings.get("lastPath"))
         if settings.get("previousFile") != "":
             previousFile = settings.get("previousFile")
 
@@ -113,29 +117,33 @@ class Ui_MainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         self.loadButton.setText(_translate("MainWindow", "Load Folder"))
         self.undoButton.setText(_translate("MainWindow", "↓Undo↑"))
-        self.nawtButton.setText(_translate("MainWindow", "☒Nawt"))
-        self.clearnawtButton.setText(_translate("MainWindow", "Delete"))
-        self.hawtButton.setText(_translate("MainWindow", "❤Hawt"))
+        self.notButton.setText(_translate("MainWindow", "☒Not"))
+        self.clearnotButton.setText(_translate("MainWindow", "Delete"))
+        self.hotButton.setText(_translate("MainWindow", "❤Hot"))
         self.label.setText(_translate("MainWindow", "No folder loaded"))
         # Hotkeys
-        self.nawtButton.setShortcut(_translate("MainWindow", "Left"))
-        self.hawtButton.setShortcut(_translate("MainWindow", "Right"))
+        self.notButton.setShortcut(_translate("MainWindow", "Left"))
+        self.hotButton.setShortcut(_translate("MainWindow", "Right"))
         self.undoButton.setShortcut(_translate("MainWindow", "Down"))
 
     def openPath(self, path):
-        global directory
+        global directory, previousDirectory
         directory = path
-        if not os.path.exists(directory + "/hawt"):
-            os.makedirs(directory + "/hawt")
-        if not os.path.exists(directory + "/nawt"):
-            os.makedirs(directory + "/nawt")
+        if not os.path.exists(directory + "/hot"):
+            os.makedirs(directory + "/hot")
+        if not os.path.exists(directory + "/not"):
+            os.makedirs(directory + "/not")
         # print("CREATED FOLDERS")
         self.changeButtonState(True)
         self.loadNextImage(directory)
+        previousDirectory = os.path.dirname(directory)
 
     def loadPath(self):
         global directory
-        directory = QtWidgets.QFileDialog.getExistingDirectory(None, "Open Dir", "C:/")
+        if previousDirectory != "" and os.path.exists(previousDirectory):
+            directory = QtWidgets.QFileDialog.getExistingDirectory(None, "Open Dir", previousDirectory)
+        else:
+            directory = QtWidgets.QFileDialog.getExistingDirectory(None, "Open Dir", "C:/")
         # print("CHOSEN DIR: " + directory)
         settings.set("lastPath", directory)
         settings.save()
@@ -143,25 +151,27 @@ class Ui_MainWindow(object):
         return
 
     def updateCounts(self, directory):
-        count = glob(directory + "/nawt/*.png")
-        count.extend(glob(directory + '/nawt/*.jpg'))
-        count.extend(glob(directory + '/nawt/*.jpeg'))
-        self.nawtcount.setText("Nawt: " + str(len(count)))
-        count = glob(directory + "/hawt/*.png")
-        count.extend(glob(directory + '/hawt/*.jpg'))
-        count.extend(glob(directory + '/hawt/*.jpeg'))
-        self.hawtcount.setText("Hawt: " + str(len(count)))
+        count = glob(directory + "/not/*.png")
+        count.extend(glob(directory + '/not/*.jpg'))
+        count.extend(glob(directory + '/not/*.jpeg'))
+        count.extend(glob(directory + '/not/*.gif'))
+        self.notcount.setText("Not: " + str(len(count)))
+        count = glob(directory + "/hot/*.png")
+        count.extend(glob(directory + '/hot/*.jpg'))
+        count.extend(glob(directory + '/hot/*.jpeg'))
+        count.extend(glob(directory + '/hot/*.gif'))
+        self.hotcount.setText("Hot: " + str(len(count)))
 
-    def clearNawt(self):
+    def clearNot(self):
         global directory, previousFile
         if directory == "":
             return
         reply = QMessageBox.warning(QtWidgets.QWidget(), 'Are you sure?',
-                                    'Are you sure you want to delete everything in the nawt-folder?\n THIS CANNOT BE UNDONE!',
+                                    'Are you sure you want to delete everything in the not-folder?\n THIS CANNOT BE UNDONE!',
                                     QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
         if reply == QMessageBox.Yes:
-            for the_file in os.listdir(directory + "/nawt"):
-                file_path = os.path.join(directory + "/nawt", the_file)
+            for the_file in os.listdir(directory + "/not"):
+                file_path = os.path.join(directory + "/not", the_file)
                 try:
                     if os.path.isfile(file_path):
                         os.unlink(file_path)
@@ -176,6 +186,8 @@ class Ui_MainWindow(object):
         cwd = glob(directory + "/*.png")
         cwd.extend(glob(directory + '/*.jpg'))
         cwd.extend(glob(directory + '/*.jpeg'))
+        cwd.extend(glob(directory + '/*.gif'))
+        cwd = sorted(cwd)
         self.totalcount.setText("Remaining: " + str(len(cwd)))
         self.updateCounts(directory)
         # print("CWD: " + str(cwd))
@@ -186,39 +198,48 @@ class Ui_MainWindow(object):
             settings.set("lastPath", "")
             settings.save()
             # print("ALL DONE!")
-            self.clearNawt()
+            self.clearNot()
             os.startfile(directory)
             return
         currentFile = cwd[0]
-
         # print("CWD: " + currentFile)
         # myPixmap = QtGui.QPixmap(currentFile)
         image_reader = QtGui.QImageReader()
         image_reader.setDecideFormatFromContent(True)
         image_reader.setFileName(currentFile)
-        image = image_reader.read()
-        myPixmap = QtGui.QPixmap.fromImage(image)
-        image = None
-        # print("Imageprofile created")
-        myScaledPixmap = myPixmap.scaled(self.label.size(), QtCore.Qt.KeepAspectRatio)
-        # print("Imageprofile scaled")
-        self.fileName.setText(os.path.basename(currentFile))
-        self.label.setPixmap(myScaledPixmap)
+        if image_reader.format() == 'gif':
+            # currentgif = directory + "/" + tempgiftitle
+            # shutil.copyfile(currentFile, currentgif)
+            movie = QtGui.QMovie(currentFile)
+            movie.setCacheMode(QtGui.QMovie.CacheAll)
+            movie.setScaledSize(self.label.size())
+            self.label.setMovie(movie)
+            movie.start()
 
-    def hawt(self):
+        else:
+            image = image_reader.read()
+            myPixmap = QtGui.QPixmap.fromImage(image)
+            # print("Imageprofile created")
+            myScaledPixmap = myPixmap.scaled(self.label.size(), QtCore.Qt.KeepAspectRatio)
+            # print("Imageprofile scaled")
+            self.label.setPixmap(myScaledPixmap)
+
+        self.fileName.setText(os.path.basename(currentFile))
+
+    def hot(self):
         global previousFile
-        # print("hawt: " + currentFile + "   " + os.path.basename(currentFile))
-        previousFile = directory + "/hawt/" + os.path.basename(currentFile)
-        shutil.move(currentFile, directory + "/hawt/" + os.path.basename(currentFile))
-        Path(directory + "/hawt/" + os.path.basename(currentFile)).touch(exist_ok=True)
+        # print("hot: " + currentFile + "   " + os.path.basename(currentFile))
+        previousFile = directory + "/hot/" + os.path.basename(currentFile)
+        shutil.move(currentFile, directory + "/hot/" + os.path.basename(currentFile))
+        Path(directory + "/hot/" + os.path.basename(currentFile)).touch(exist_ok=True)
         self.loadNextImage(directory)
 
-    def nawt(self):
+    def not(self):
         global previousFile
-        # print("nawt: " + currentFile + "   " + os.path.basename(currentFile))
-        previousFile = directory + "/nawt/" + os.path.basename(currentFile)
-        shutil.move(currentFile, directory + "/nawt/" + os.path.basename(currentFile))
-        Path(directory + "/nawt/" + os.path.basename(currentFile)).touch(exist_ok=True)
+        # print("not: " + currentFile + "   " + os.path.basename(currentFile))
+        previousFile = directory + "/not/" + os.path.basename(currentFile)
+        shutil.move(currentFile, directory + "/not/" + os.path.basename(currentFile))
+        Path(directory + "/not/" + os.path.basename(currentFile)).touch(exist_ok=True)
         self.loadNextImage(directory)
 
     def undo(self):
@@ -233,17 +254,17 @@ class Ui_MainWindow(object):
         self.loadNextImage(directory)
 
     def changeButtonState(self, val):
-        self.hawtButton.setEnabled(val)
-        self.nawtButton.setEnabled(val)
-        self.clearnawtButton.setEnabled(val)
+        self.hotButton.setEnabled(val)
+        self.notButton.setEnabled(val)
+        self.clearnotButton.setEnabled(val)
         self.undoButton.setEnabled(val)
-        self.hawtButton.setVisible(val)
-        self.nawtButton.setVisible(val)
-        self.clearnawtButton.setVisible(val)
+        self.hotButton.setVisible(val)
+        self.notButton.setVisible(val)
+        self.clearnotButton.setVisible(val)
         self.undoButton.setVisible(val)
-        if val == False:
-            self.nawtcount.setText("")
-            self.hawtcount.setText("")
+        if not val:
+            self.notcount.setText("")
+            self.hotcount.setText("")
             self.totalcount.setText("")
             self.fileName.setText("")
 
