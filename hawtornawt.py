@@ -90,9 +90,8 @@ class Ui_MainWindow(object):
         # self.notcount.setText("Not: xxx")
 
         self.loadButton.clicked.connect(self.loadPath)
-        self.hotButton.clicked.connect(self.hot)
-        self.notButton.clicked.connect(self.
-        not)
+        self.hotButton.clicked.connect(self.hotclicked)
+        self.notButton.clicked.connect(self.notclicked)
         self.clearnotButton.clicked.connect(self.clearNot)
         self.undoButton.clicked.connect(self.undo)
 
@@ -226,7 +225,7 @@ class Ui_MainWindow(object):
 
         self.fileName.setText(os.path.basename(currentFile))
 
-    def hot(self):
+    def hotclicked(self):
         global previousFile
         # print("hot: " + currentFile + "   " + os.path.basename(currentFile))
         previousFile = directory + "/hot/" + os.path.basename(currentFile)
@@ -234,7 +233,7 @@ class Ui_MainWindow(object):
         Path(directory + "/hot/" + os.path.basename(currentFile)).touch(exist_ok=True)
         self.loadNextImage(directory)
 
-    def not(self):
+    def notclicked(self):
         global previousFile
         # print("not: " + currentFile + "   " + os.path.basename(currentFile))
         previousFile = directory + "/not/" + os.path.basename(currentFile)
