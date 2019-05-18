@@ -6,6 +6,8 @@ import shutil
 import sys
 from glob import glob
 
+import cv2
+import imageio
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMessageBox
 from easysettings import EasySettings
@@ -206,15 +208,25 @@ class Ui_MainWindow(object):
         image_reader = QtGui.QImageReader()
         image_reader.setDecideFormatFromContent(True)
         image_reader.setFileName(currentFile)
+        self.fileName.setText(os.path.basename(currentFile))
         if image_reader.format() == 'gif':
-            # currentgif = directory + "/" + tempgiftitle
-            # shutil.copyfile(currentFile, currentgif)
-            movie = QtGui.QMovie(currentFile)
-            movie.setCacheMode(QtGui.QMovie.CacheAll)
-            movie.setScaledSize(self.label.size())
-            self.label.setMovie(movie)
-            movie.start()
-
+            self.label.setText("GIF. Press escape to vote.")
+            self.changeButtonState(False, gif=True)
+            ## Read the gif from disk to `RGB`s using `imageio.miread`
+            gif = imageio.mimread(currentFile)
+            nums = len(gif)
+            # print("Total {} frames in the gif!".format(nums))
+            imgs = [cv2.cvtColor(img, cv2.COLOR_RGB2BGR) for img in gif]
+            i = 0
+            # play gif
+            while True:
+                cv2.imshow("gif", imgs[i])
+                cv2.moveWindow("gif", 400, 400)
+                if cv2.waitKey(100) & 0xFF == 27:
+                    break
+                i = (i + 1) % nums
+            cv2.destroyAllWindows()
+            self.changeButtonState(True, gif=True)
         else:
             image = image_reader.read()
             myPixmap = QtGui.QPixmap.fromImage(image)
@@ -223,7 +235,7 @@ class Ui_MainWindow(object):
             # print("Imageprofile scaled")
             self.label.setPixmap(myScaledPixmap)
 
-        self.fileName.setText(os.path.basename(currentFile))
+
 
     def hotclicked(self):
         global previousFile
@@ -252,7 +264,7 @@ class Ui_MainWindow(object):
         previousFile = ""
         self.loadNextImage(directory)
 
-    def changeButtonState(self, val):
+    def changeButtonState(self, val, gif=False):
         self.hotButton.setEnabled(val)
         self.notButton.setEnabled(val)
         self.clearnotButton.setEnabled(val)
@@ -261,7 +273,9 @@ class Ui_MainWindow(object):
         self.notButton.setVisible(val)
         self.clearnotButton.setVisible(val)
         self.undoButton.setVisible(val)
-        if not val:
+        if gif:
+            self.loadButton.setVisible(val)
+        if not val and not gif:
             self.notcount.setText("")
             self.hotcount.setText("")
             self.totalcount.setText("")
