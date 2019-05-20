@@ -2,9 +2,10 @@
 
 import ctypes
 import os
+import platform
 import shutil
 import sys
-from glob import glob
+from glob import glob, escape
 
 import cv2
 import imageio
@@ -76,13 +77,16 @@ class Ui_MainWindow(object):
         self.fileName.setMargin(2)
         self.fileName.setAlignment(QtCore.Qt.AlignRight)
         self.fileName.setText("")
+        self.openFileButton = QtWidgets.QPushButton(self.centralwidget)
+        self.openFileButton.setGeometry(QtCore.QRect(1390, 850, 100, 30))
+        self.openFileButton.setObjectName("openButton")
         MainWindow.setCentralWidget(self.centralwidget)
-        self.statusbar = QtWidgets.QStatusBar(MainWindow)
-        self.statusbar.setObjectName("statusbar")
-        MainWindow.setStatusBar(self.statusbar)
+        # self.statusbar = QtWidgets.QStatusBar(MainWindow)
+        # self.statusbar.setObjectName("statusbar")
+        # MainWindow.setStatusBar(self.statusbar)
 
         self.totalcount = QtWidgets.QLabel(self.centralwidget)
-        self.totalcount.setGeometry(750, 850, 150, 30)
+        self.totalcount.setGeometry(730, 850, 200, 30)
         # self.count.setText("Count: xxx")
 
         self.hotcount = QtWidgets.QLabel(self.centralwidget)
@@ -97,6 +101,10 @@ class Ui_MainWindow(object):
         self.notButton.clicked.connect(self.notclicked)
         self.clearnotButton.clicked.connect(self.clearNot)
         self.undoButton.clicked.connect(self.undo)
+        if platform.system() == 'Windows':
+            self.openFileButton.clicked.connect(self.openFile)
+        else:
+            self.openFileButton.setVisible(False)
 
         app.aboutToQuit.connect(self.closeEvent)
 
@@ -123,6 +131,7 @@ class Ui_MainWindow(object):
         self.clearnotButton.setText(_translate("MainWindow", "Delete"))
         self.hotButton.setText(_translate("MainWindow", "❤Hot"))
         self.label.setText(_translate("MainWindow", "No folder loaded"))
+        self.openFileButton.setText(_translate("MainWindow", "Open file"))
         # Hotkeys
         self.notButton.setShortcut(_translate("MainWindow", "Left"))
         self.hotButton.setShortcut(_translate("MainWindow", "Right"))
@@ -162,6 +171,7 @@ class Ui_MainWindow(object):
         self.notcount.setText("Not: " + str(len(count)))
         count = next(os.walk(directory + "/hot/"))[2]
         self.hotcount.setText("Hot: " + str(len(count)))
+        self.totalcount.setText("Remaining: " + str(len(cwd)))
 
     def clearNot(self):
         global directory, previousFile
@@ -184,7 +194,6 @@ class Ui_MainWindow(object):
 
     def loadNextImage(self, directory):
         global currentFile
-        self.totalcount.setText("Remaining: " + str(len(cwd)))
         self.updateCounts(directory)
         # print("CWD: " + str(cwd))
         if len(cwd) == 0:
@@ -232,9 +241,7 @@ class Ui_MainWindow(object):
 
     def hotclicked(self):
         global previousFile, cwd
-        print(cwd[0])
         del cwd[0]
-        print(cwd[0])
         # print("hot: " + currentFile + "   " + os.path.basename(currentFile))
         previousFile = directory + "/hot/" + os.path.basename(currentFile)
         shutil.move(currentFile, directory + "/hot/" + os.path.basename(currentFile))
@@ -243,9 +250,7 @@ class Ui_MainWindow(object):
 
     def notclicked(self):
         global previousFile, cwd
-        print(cwd[0])
         del cwd[0]
-        print(cwd[0])
         # print("not: " + currentFile + "   " + os.path.basename(currentFile))
         previousFile = directory + "/not/" + os.path.basename(currentFile)
         shutil.move(currentFile, directory + "/not/" + os.path.basename(currentFile))
@@ -253,13 +258,15 @@ class Ui_MainWindow(object):
         self.loadNextImage(directory)
 
     def undo(self):
-        global previousFile
+        global previousFile, cwd
         if previousFile == "":
             QMessageBox.warning(QtWidgets.QWidget(), 'Not possible.',
                                 'There is no previous file saved.',
                                 QMessageBox.Ok, QMessageBox.Ok)
             return
         shutil.move(previousFile, directory + "/" + os.path.basename(previousFile))
+        cwd.extend(glob(escape(directory + "/" + os.path.basename(previousFile))))
+        cwd = sorted(cwd)
         previousFile = ""
         self.loadNextImage(directory)
 
@@ -279,6 +286,9 @@ class Ui_MainWindow(object):
             self.hotcount.setText("")
             self.totalcount.setText("")
             self.fileName.setText("")
+
+    def openFile(self):
+        os.startfile(currentFile, 'open')
 
 
 if __name__ == "__main__":
