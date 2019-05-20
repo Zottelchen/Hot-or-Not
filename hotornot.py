@@ -16,6 +16,7 @@ from pathlib2 import Path
 # tempgiftitle = "TMP_GIF_FILE_OF_HOTORNOT-DO_NOT_DELETE_PLEASE.xyzyx"
 directory = ""
 currentFile = ""
+cwd = ""
 previousFile = ""
 previousDirectory = ""
 myappid = u'hotornot'  # arbitrary string
@@ -128,13 +129,18 @@ class Ui_MainWindow(object):
         self.undoButton.setShortcut(_translate("MainWindow", "Down"))
 
     def openPath(self, path):
-        global directory, previousDirectory
+        global directory, previousDirectory, cwd
         directory = path
         if not os.path.exists(directory + "/hot"):
             os.makedirs(directory + "/hot")
         if not os.path.exists(directory + "/not"):
             os.makedirs(directory + "/not")
         # print("CREATED FOLDERS")
+        cwd = glob(directory + "/*.png")
+        cwd.extend(glob(directory + '/*.jpg'))
+        cwd.extend(glob(directory + '/*.jpeg'))
+        cwd.extend(glob(directory + '/*.gif'))
+        cwd = sorted(cwd)
         self.changeButtonState(True)
         self.loadNextImage(directory)
         previousDirectory = os.path.dirname(directory)
@@ -152,15 +158,9 @@ class Ui_MainWindow(object):
         return
 
     def updateCounts(self, directory):
-        count = glob(directory + "/not/*.png")
-        count.extend(glob(directory + '/not/*.jpg'))
-        count.extend(glob(directory + '/not/*.jpeg'))
-        count.extend(glob(directory + '/not/*.gif'))
+        count = next(os.walk(directory + "/not/"))[2]
         self.notcount.setText("Not: " + str(len(count)))
-        count = glob(directory + "/hot/*.png")
-        count.extend(glob(directory + '/hot/*.jpg'))
-        count.extend(glob(directory + '/hot/*.jpeg'))
-        count.extend(glob(directory + '/hot/*.gif'))
+        count = next(os.walk(directory + "/hot/"))[2]
         self.hotcount.setText("Hot: " + str(len(count)))
 
     def clearNot(self):
@@ -184,11 +184,6 @@ class Ui_MainWindow(object):
 
     def loadNextImage(self, directory):
         global currentFile
-        cwd = glob(directory + "/*.png")
-        cwd.extend(glob(directory + '/*.jpg'))
-        cwd.extend(glob(directory + '/*.jpeg'))
-        cwd.extend(glob(directory + '/*.gif'))
-        cwd = sorted(cwd)
         self.totalcount.setText("Remaining: " + str(len(cwd)))
         self.updateCounts(directory)
         # print("CWD: " + str(cwd))
@@ -235,10 +230,11 @@ class Ui_MainWindow(object):
             # print("Imageprofile scaled")
             self.label.setPixmap(myScaledPixmap)
 
-
-
     def hotclicked(self):
-        global previousFile
+        global previousFile, cwd
+        print(cwd[0])
+        del cwd[0]
+        print(cwd[0])
         # print("hot: " + currentFile + "   " + os.path.basename(currentFile))
         previousFile = directory + "/hot/" + os.path.basename(currentFile)
         shutil.move(currentFile, directory + "/hot/" + os.path.basename(currentFile))
@@ -246,7 +242,10 @@ class Ui_MainWindow(object):
         self.loadNextImage(directory)
 
     def notclicked(self):
-        global previousFile
+        global previousFile, cwd
+        print(cwd[0])
+        del cwd[0]
+        print(cwd[0])
         # print("not: " + currentFile + "   " + os.path.basename(currentFile))
         previousFile = directory + "/not/" + os.path.basename(currentFile)
         shutil.move(currentFile, directory + "/not/" + os.path.basename(currentFile))
