@@ -7,10 +7,10 @@ import shutil
 import sys
 from glob import glob, escape
 
-import cv2
-import imageio
+import mpv
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtCore import *
+from PyQt5.QtWidgets import *
 from easysettings import EasySettings
 from pathlib2 import Path
 
@@ -38,7 +38,7 @@ class Ui_MainWindow(object):
         MainWindow.resize(1600, 900)
         MainWindow.setMinimumSize(QtCore.QSize(1600, 900))
         MainWindow.setMaximumSize(QtCore.QSize(1600, 900))
-        MainWindow.setWindowTitle("Hot Or Not (Version 1.3)")
+        MainWindow.setWindowTitle("Hot Or Not (Version 2.0)")
         MainWindow.setWindowOpacity(1.0)
         MainWindow.setAutoFillBackground(False)
         MainWindow.setWindowIcon(QtGui.QIcon(resource_path('./flame.ico')))
@@ -71,6 +71,22 @@ class Ui_MainWindow(object):
         self.label.setStyleSheet("background-color: rgb(85, 85, 85);")
         self.label.setAlignment(QtCore.Qt.AlignCenter)
         self.label.setObjectName("label")
+
+        # gifcontainer
+        self.container = QWidget(self.centralwidget)
+        self.container.setAttribute(Qt.WA_DontCreateNativeAncestors)
+        self.container.setAttribute(Qt.WA_NativeWindow)
+        self.container.setGeometry(QtCore.QRect(110, 0, 1380, 820))
+        self.container.setStyleSheet("background-color: rgb(85, 85, 85);")
+        # self.container.setAlignment(QtCore.Qt.AlignCenter)
+        self.player = mpv.MPV(wid=str(int(self.container.winId())),
+                              log_handler=print,
+                              loglevel='debug', player_operation_mode='pseudo-gui',
+                              script_opts='osc-layout=box,osc-seekbarstyle=bar,osc-deadzonesize=0,osc-minmousemove=3',
+                              input_default_bindings=True,
+                              input_vo_keyboard=True, osc=True, loop='inf')
+        self.container.setVisible(False)
+
         self.fileName = QtWidgets.QLabel(self.centralwidget)
         self.fileName.setGeometry(QtCore.QRect(990, 820, 500, 28))
         self.fileName.setStyleSheet("background-color: rgb(95, 95, 95);")
@@ -197,6 +213,9 @@ class Ui_MainWindow(object):
         self.updateCounts(directory)
         # print("CWD: " + str(cwd))
         if len(cwd) == 0:
+            self.player.stop()
+            self.container.setVisible(False)
+            self.label.setVisible(True)
             self.changeButtonState(False)
             self.label.setText("No more images. Choose new folder.")
             self.totalcount.setText("")
@@ -214,24 +233,13 @@ class Ui_MainWindow(object):
         image_reader.setFileName(currentFile)
         self.fileName.setText(os.path.basename(currentFile))
         if image_reader.format() == 'gif':
-            self.label.setText("GIF. Press escape to vote.")
-            self.changeButtonState(False, gif=True)
-            ## Read the gif from disk to `RGB`s using `imageio.miread`
-            gif = imageio.mimread(currentFile)
-            nums = len(gif)
-            # print("Total {} frames in the gif!".format(nums))
-            imgs = [cv2.cvtColor(img, cv2.COLOR_RGB2BGR) for img in gif]
-            i = 0
-            # play gif
-            while True:
-                cv2.imshow("gif", imgs[i])
-                cv2.moveWindow("gif", 400, 400)
-                if cv2.waitKey(100) & 0xFF == 27:
-                    break
-                i = (i + 1) % nums
-            cv2.destroyAllWindows()
-            self.changeButtonState(True, gif=True)
+            self.container.setVisible(True)
+            self.label.setVisible(False)
+            self.player.play(currentFile)
         else:
+            self.player.stop()
+            self.container.setVisible(False)
+            self.label.setVisible(True)
             image = image_reader.read()
             myPixmap = QtGui.QPixmap.fromImage(image)
             # print("Imageprofile created")
@@ -241,6 +249,7 @@ class Ui_MainWindow(object):
 
     def hotclicked(self):
         global previousFile, cwd
+        self.player.stop()
         del cwd[0]
         # print("hot: " + currentFile + "   " + os.path.basename(currentFile))
         previousFile = directory + "/hot/" + os.path.basename(currentFile)
@@ -250,6 +259,7 @@ class Ui_MainWindow(object):
 
     def notclicked(self):
         global previousFile, cwd
+        self.player.stop()
         del cwd[0]
         # print("not: " + currentFile + "   " + os.path.basename(currentFile))
         previousFile = directory + "/not/" + os.path.basename(currentFile)
