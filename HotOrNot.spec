@@ -1,12 +1,12 @@
-# -*- mode: python -*-
+# -*- mode: python ; coding: utf-8 -*-
 
 block_cipher = None
 
 
 a = Analysis(['hotornot.py'],
-             pathex=['F:\\Dropbox\\Scripte\\HAWTorNAWT'],
+             pathex=['G:\\Dropbox\\Scripte\\HAWTorNAWT'],
              binaries=[],
-             datas=[],
+             datas=[('flame.ico', '.')],
              hiddenimports=[],
              hookspath=[],
              runtime_hooks=[],
@@ -17,19 +17,17 @@ a = Analysis(['hotornot.py'],
              noarchive=False)
 pyz = PYZ(a.pure, a.zipped_data,
              cipher=block_cipher)
-
-a.datas += [('./flame.ico', './flame.ico','DATA')]
-
 exe = EXE(pyz,
           a.scripts,
           a.binaries,
           a.zipfiles,
           a.datas,
           [],
-          name='hotornot',
+          name='HotOrNot',
           debug=False,
           bootloader_ignore_signals=False,
           strip=False,
-          upx=True,
+          upx=False,
+          upx_exclude=[],
           runtime_tmpdir=None,
           console=False , icon='flame.ico')

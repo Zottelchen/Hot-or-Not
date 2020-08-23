@@ -14,7 +14,6 @@ from PyQt5.QtWidgets import *
 from easysettings import EasySettings
 from pathlib2 import Path
 
-# tempgiftitle = "TMP_GIF_FILE_OF_HOTORNOT-DO_NOT_DELETE_PLEASE.xyzyx"
 directory = ""
 currentFile = ""
 cwd = ""
@@ -81,7 +80,7 @@ class Ui_MainWindow(object):
         # self.container.setAlignment(QtCore.Qt.AlignCenter)
         self.player = mpv.MPV(wid=str(int(self.container.winId())),
                               log_handler=print,
-                              loglevel='debug', player_operation_mode='pseudo-gui',
+                              player_operation_mode='pseudo-gui',
                               script_opts='osc-layout=box,osc-seekbarstyle=bar,osc-deadzonesize=0,osc-minmousemove=3',
                               input_default_bindings=True,
                               input_vo_keyboard=True, osc=True, loop='inf')

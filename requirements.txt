@@ -1,0 +1,4 @@
+PyQt5~=5.15.0
+EasySettings~=3.2.1
+pathlib2~=2.3.5
+python-mpv~=0.5.2

@@ -1,1 +1,1 @@
-pyinstaller --onefile --icon=flame.ico --windowed hotornot.spec
+pyinstaller --clean HotOrNot.spec
