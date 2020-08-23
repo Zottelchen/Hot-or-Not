@@ -3,3 +3,4 @@
 /dist/
 hotornot.conf
 .idea
+__pycache__
