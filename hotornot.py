@@ -7,12 +7,17 @@ import shutil
 import sys
 from glob import glob, escape
 
-import mpv
+import magic
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from easysettings import EasySettings
+from natsort import os_sorted
 from pathlib2 import Path
+
+# MPV
+os.environ["PATH"] = os.path.dirname(__file__) + os.pathsep + os.environ["PATH"]
+import mpv
 
 directory = ""
 currentFile = ""
@@ -22,6 +27,7 @@ previousDirectory = ""
 myappid = u'hotornot'  # arbitrary string
 ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 settings = EasySettings("hotornot.conf")
+m = magic.Magic()
 
 
 def resource_path(relative_path):
@@ -37,7 +43,7 @@ class Ui_MainWindow(object):
         MainWindow.resize(1600, 900)
         MainWindow.setMinimumSize(QtCore.QSize(1600, 900))
         MainWindow.setMaximumSize(QtCore.QSize(1600, 900))
-        MainWindow.setWindowTitle("Hot Or Not (Version 2.0)")
+        MainWindow.setWindowTitle("Hot Or Not (Version 2.1)")
         MainWindow.setWindowOpacity(1.0)
         MainWindow.setAutoFillBackground(False)
         MainWindow.setWindowIcon(QtGui.QIcon(resource_path('./flame.ico')))
@@ -160,11 +166,15 @@ class Ui_MainWindow(object):
         if not os.path.exists(directory + "/not"):
             os.makedirs(directory + "/not")
         # print("CREATED FOLDERS")
+        # print(directory)
         cwd = glob(directory + "/*.png")
         cwd.extend(glob(directory + '/*.jpg'))
         cwd.extend(glob(directory + '/*.jpeg'))
         cwd.extend(glob(directory + '/*.gif'))
-        cwd = sorted(cwd)
+        cwd.extend(glob(directory + '/*.webm'))
+        cwd.extend(glob(directory + '/*.mp4'))
+        cwd = os_sorted(cwd)
+        # print(cwd)
         self.changeButtonState(True)
         self.loadNextImage(directory)
         previousDirectory = os.path.dirname(directory)
@@ -231,11 +241,12 @@ class Ui_MainWindow(object):
         image_reader.setDecideFormatFromContent(True)
         image_reader.setFileName(currentFile)
         self.fileName.setText(os.path.basename(currentFile))
-        if image_reader.format() == 'gif':
+        filetype = magic.from_file(currentFile, mime=True)
+        if filetype in ('image/gif', 'video/webm', 'video/mp4'):  # todo: properly check if webm
             self.container.setVisible(True)
             self.label.setVisible(False)
             self.player.play(currentFile)
-        else:
+        elif filetype in ('image/png', 'image/jpg', 'image/jpeg'):
             self.player.stop()
             self.container.setVisible(False)
             self.label.setVisible(True)
